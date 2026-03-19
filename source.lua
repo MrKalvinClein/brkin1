@@ -26,7 +26,7 @@ local MacLib = loadstring(game:HttpGet("https://github.com/biggaboy212/Maclib/re
 local Window = MacLib:Window({
     Title = "Dexter Scripts",
     Subtitle = "by nipcd",
-    Size = isMobile and UDim2.fromOffset(380, 340) or UDim2.fromOffset(868, 650),
+    Size = isMobile and UDim2.fromOffset(340, 500) or UDim2.fromOffset(868, 650),
     DragStyle = isMobile and 2 or 1,
     ShowUserInfo = true,
     Keybind = Enum.KeyCode.K,
@@ -38,17 +38,20 @@ local isOpen = true
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "MacLibToggle"
 screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.DisplayOrder = 999
 screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local circle = Instance.new("TextButton")
-circle.Size = UDim2.fromOffset(50, 50)
-circle.Position = UDim2.new(0, 20, 0.5, -25)
-circle.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+circle.Size = UDim2.fromOffset(55, 55)
+circle.Position = UDim2.new(0, 15, 0.85, 0)
+circle.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 circle.Text = "☰"
 circle.TextColor3 = Color3.new(1, 1, 1)
-circle.TextSize = 20
+circle.TextSize = 22
 circle.Font = Enum.Font.GothamBold
 circle.BorderSizePixel = 0
+circle.ZIndex = 999
 circle.Parent = screenGui
 
 local corner = Instance.new("UICorner")
@@ -56,39 +59,42 @@ corner.CornerRadius = UDim.new(1, 0)
 corner.Parent = circle
 
 local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(80, 80, 80)
+stroke.Color = Color3.fromRGB(100, 100, 100)
 stroke.Thickness = 2
 stroke.Parent = circle
 
 local dragging = false
 local dragOffset = Vector2.new()
+local touchStartPos = Vector2.new()
 
 circle.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = false
-        local pos = Vector2.new(input.Position.X, input.Position.Y)
-        dragOffset = Vector2.new(circle.AbsolutePosition.X - pos.X, circle.AbsolutePosition.Y - pos.Y)
-        task.delay(0.15, function()
-            if input.UserInputState ~= Enum.UserInputState.End then
-                dragging = true
-            end
-        end)
+        touchStartPos = Vector2.new(input.Position.X, input.Position.Y)
+        dragOffset = Vector2.new(circle.AbsolutePosition.X - input.Position.X, circle.AbsolutePosition.Y - input.Position.Y)
     end
 end)
 
 circle.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
-        local pos = Vector2.new(input.Position.X, input.Position.Y)
-        circle.Position = UDim2.fromOffset(pos.X + dragOffset.X, pos.Y + dragOffset.Y)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = Vector2.new(input.Position.X - touchStartPos.X, input.Position.Y - touchStartPos.Y)
+        if delta.Magnitude > 10 then
+            dragging = true
+        end
+        if dragging then
+            circle.Position = UDim2.fromOffset(input.Position.X + dragOffset.X, input.Position.Y + dragOffset.Y)
+        end
     end
 end)
 
 circle.InputEnded:Connect(function(input)
-    if (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1) and not dragging then
-        isOpen = not isOpen
-        Window:SetState(isOpen)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if not dragging then
+            isOpen = not isOpen
+            Window:SetState(isOpen)
+        end
+        dragging = false
     end
-    dragging = false
 end)
 
 local hasTruck = Workspace:FindFirstChild("Truck1") or Workspace:FindFirstChild("Truck2")
@@ -167,70 +173,18 @@ if hasTruck then
 
     SpecialSection:Header({ Text = "Special / Paid" })
 
-    SpecialSection:Button({
-        Name = "Swat",
-        Callback = function()
-            ReplicatedStorage.RemoteEvents.OutsideRole:FireServer("SwatGun", true)
-        end
-    })
-
-    SpecialSection:Button({
-        Name = "Police",
-        Callback = function()
-            ReplicatedStorage.RemoteEvents.OutsideRole:FireServer("Gun", true)
-        end
-    })
-
-    SpecialSection:Button({
-        Name = "The Fighter",
-        Callback = function()
-            ReplicatedStorage.RemoteEvents.OutsideRole:FireServer("Sword", false)
-        end
-    })
-
-    SpecialSection:Button({
-        Name = "The Hyper (Need 1 more badges)",
-        Callback = function()
-            ReplicatedStorage.RemoteEvents.OutsideRole:FireServer("Lollipop", true)
-        end
-    })
-
-    SpecialSection:Button({
-        Name = "The Guest (Need 6 more badges)",
-        Callback = function()
-            ReplicatedStorage.RemoteEvents.OutsideRole:FireServer("LinkedSword", true)
-        end
-    })
+    SpecialSection:Button({ Name = "Swat", Callback = function() ReplicatedStorage.RemoteEvents.OutsideRole:FireServer("SwatGun", true) end })
+    SpecialSection:Button({ Name = "Police", Callback = function() ReplicatedStorage.RemoteEvents.OutsideRole:FireServer("Gun", true) end })
+    SpecialSection:Button({ Name = "The Fighter", Callback = function() ReplicatedStorage.RemoteEvents.OutsideRole:FireServer("Sword", false) end })
+    SpecialSection:Button({ Name = "The Hyper (Need 1 more badges)", Callback = function() ReplicatedStorage.RemoteEvents.OutsideRole:FireServer("Lollipop", true) end })
+    SpecialSection:Button({ Name = "The Guest (Need 6 more badges)", Callback = function() ReplicatedStorage.RemoteEvents.OutsideRole:FireServer("LinkedSword", true) end })
 
     DefaultSection:Header({ Text = "Default" })
 
-    DefaultSection:Button({
-        Name = "The Protector",
-        Callback = function()
-            ReplicatedStorage.RemoteEvents.MakeRole:FireServer("Bat", false, false)
-        end
-    })
-
-    DefaultSection:Button({
-        Name = "The Medic",
-        Callback = function()
-            ReplicatedStorage.RemoteEvents.MakeRole:FireServer("MedKit", false, false)
-        end
-    })
-
-    DefaultSection:Button({
-        Name = "The Hungry",
-        Callback = function()
-            ReplicatedStorage.RemoteEvents.MakeRole:FireServer("Chips", true, false)
-        end
-    })
-
-    DefaultSection:Button({
-        Name = "The Stealthy",
-        Callback = function()
-            ReplicatedStorage.RemoteEvents.MakeRole:FireServer("TeddyBloxpin", true, false)
-        end
-    })
+    DefaultSection:Button({ Name = "The Protector", Callback = function() ReplicatedStorage.RemoteEvents.MakeRole:FireServer("Bat", false, false) end })
+    DefaultSection:Button({ Name = "The Medic", Callback = function() ReplicatedStorage.RemoteEvents.MakeRole:FireServer("MedKit", false, false) end })
+    DefaultSection:Button({ Name = "The Hungry", Callback = function() ReplicatedStorage.RemoteEvents.MakeRole:FireServer("Chips", true, false) end })
+    DefaultSection:Button({ Name = "The Stealthy", Callback = function() ReplicatedStorage.RemoteEvents.MakeRole:FireServer("TeddyBloxpin", true, false) end })
 end
 
 if not hasTruck then
@@ -242,7 +196,7 @@ if not hasTruck then
 
     TeleportsSection:Button({ Name = "Basement", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(71, -15, -163) end })
     TeleportsSection:Button({ Name = "House", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-36, 3, -200) end })
-    TeleportsSection:Button({ Name = "Hiding Spot", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-42.86656951904297, 6.433286666870117, -222.01171875) end })
+    TeleportsSection:Button({ Name = "Hiding Spot", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-42.86, 6.43, -222.01) end })
     TeleportsSection:Button({ Name = "Attic", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-16, 35, -220) end })
     TeleportsSection:Button({ Name = "Store", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-422, 3, -121) end })
     TeleportsSection:Button({ Name = "Sewer", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(129, 3, -125) end })
@@ -250,9 +204,9 @@ if not hasTruck then
 
     RoomsSection:Header({ Text = "Rooms" })
 
-    RoomsSection:Button({ Name = "Blue Room", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-47.8657608, 23.3939495, -201.471542) end })
-    RoomsSection:Button({ Name = "Green Room", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(7.26794052, 24.3939476, -194.080673) end })
-    RoomsSection:Button({ Name = "Pink Room", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(6.07868958, 23.3939476, -226.009659) end })
+    RoomsSection:Button({ Name = "Blue Room", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-47.87, 23.39, -201.47) end })
+    RoomsSection:Button({ Name = "Green Room", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(7.27, 24.39, -194.08) end })
+    RoomsSection:Button({ Name = "Pink Room", Callback = function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(6.08, 23.39, -226.01) end })
 
     local PlayerTab = TabGroup:Tab({ Name = "Player" })
     local PlayerSection1 = PlayerTab:Section({ Side = "Left" })
@@ -266,18 +220,8 @@ if not hasTruck then
         Callback = function(state)
             getEnergy = state
             if state then
-                task.spawn(function()
-                    while getEnergy do
-                        ReplicatedStorage.RemoteEvents.Energy:FireServer(15, "Cookie")
-                        task.wait(0.1)
-                    end
-                end)
-                task.spawn(function()
-                    while getEnergy do
-                        ReplicatedStorage.RemoteEvents.GiveTool:FireServer("Cookie")
-                        task.wait(0.1)
-                    end
-                end)
+                task.spawn(function() while getEnergy do ReplicatedStorage.RemoteEvents.Energy:FireServer(15, "Cookie") task.wait(0.1) end end)
+                task.spawn(function() while getEnergy do ReplicatedStorage.RemoteEvents.GiveTool:FireServer("Cookie") task.wait(0.1) end end)
             end
         end
     })
@@ -285,12 +229,8 @@ if not hasTruck then
     PlayerSection1:Button({
         Name = "Get Energy Instantly",
         Callback = function()
-            for i = 1, 7 do
-                ReplicatedStorage.RemoteEvents.GiveTool:FireServer("Apple")
-            end
-            for i = 1, 7 do
-                ReplicatedStorage.RemoteEvents.Energy:FireServer(15, "Apple")
-            end
+            for i = 1, 7 do ReplicatedStorage.RemoteEvents.GiveTool:FireServer("Apple") end
+            for i = 1, 7 do ReplicatedStorage.RemoteEvents.Energy:FireServer(15, "Apple") end
         end
     })
 
@@ -315,22 +255,15 @@ if not hasTruck then
                 noclipConnection = RunService.Heartbeat:Connect(function()
                     if LocalPlayer.Character then
                         for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                part.CanCollide = false
-                            end
+                            if part:IsA("BasePart") then part.CanCollide = false end
                         end
                     end
                 end)
             else
-                if noclipConnection then
-                    noclipConnection:Disconnect()
-                    noclipConnection = nil
-                end
+                if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
                 if LocalPlayer.Character then
                     for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
-                        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                            part.CanCollide = true
-                        end
+                        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then part.CanCollide = true end
                     end
                 end
             end
@@ -340,25 +273,14 @@ if not hasTruck then
     PlayerSection2:Header({ Text = "WalkSpeed" })
 
     local walkspeedValue = 16
-    local walkspeedEnabled = false
     local walkspeedConnection = nil
 
-    PlayerSection2:Slider({
-        Name = "WalkSpeed",
-        Default = 16,
-        Minimum = 16,
-        Maximum = 500,
-        DisplayMethod = "Value",
-        Callback = function(value)
-            walkspeedValue = value
-        end
-    })
+    PlayerSection2:Slider({ Name = "WalkSpeed", Default = 16, Minimum = 16, Maximum = 500, DisplayMethod = "Value", Callback = function(v) walkspeedValue = v end })
 
     PlayerSection2:Toggle({
         Name = "Enable WalkSpeed",
         Default = false,
         Callback = function(state)
-            walkspeedEnabled = state
             if state then
                 walkspeedConnection = RunService.Heartbeat:Connect(function()
                     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
@@ -366,10 +288,7 @@ if not hasTruck then
                     end
                 end)
             else
-                if walkspeedConnection then
-                    walkspeedConnection:Disconnect()
-                    walkspeedConnection = nil
-                end
+                if walkspeedConnection then walkspeedConnection:Disconnect() walkspeedConnection = nil end
                 if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
                     LocalPlayer.Character.Humanoid.WalkSpeed = 16
                 end
@@ -381,25 +300,14 @@ if not hasTruck then
     PlayerSection2:Header({ Text = "JumpPower" })
 
     local jumppowerValue = 50
-    local jumppowerEnabled = false
     local jumppowerConnection = nil
 
-    PlayerSection2:Slider({
-        Name = "JumpPower",
-        Default = 50,
-        Minimum = 50,
-        Maximum = 500,
-        DisplayMethod = "Value",
-        Callback = function(value)
-            jumppowerValue = value
-        end
-    })
+    PlayerSection2:Slider({ Name = "JumpPower", Default = 50, Minimum = 50, Maximum = 500, DisplayMethod = "Value", Callback = function(v) jumppowerValue = v end })
 
     PlayerSection2:Toggle({
         Name = "Enable JumpPower",
         Default = false,
         Callback = function(state)
-            jumppowerEnabled = state
             if state then
                 jumppowerConnection = RunService.Heartbeat:Connect(function()
                     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
@@ -408,10 +316,7 @@ if not hasTruck then
                     end
                 end)
             else
-                if jumppowerConnection then
-                    jumppowerConnection:Disconnect()
-                    jumppowerConnection = nil
-                end
+                if jumppowerConnection then jumppowerConnection:Disconnect() jumppowerConnection = nil end
                 if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
                     LocalPlayer.Character.Humanoid.UseJumpPower = true
                     LocalPlayer.Character.Humanoid.JumpPower = 50
@@ -425,9 +330,7 @@ if not hasTruck then
     PlayerSection2:Toggle({
         Name = "Infinite Jump",
         Default = false,
-        Callback = function(state)
-            infiniteJumpEnabled = state
-        end
+        Callback = function(state) infiniteJumpEnabled = state end
     })
 
     UserInputService.JumpRequest:Connect(function()
@@ -442,13 +345,7 @@ local MiscSection1 = MiscTab:Section({ Side = "Left" })
 local MiscSection2 = MiscTab:Section({ Side = "Right" })
 
 if not hasTruck then
-    MiscSection1:Button({
-        Name = "Be Friends with Cat",
-        Callback = function()
-            ReplicatedStorage.RemoteEvents.Cattery:FireServer()
-        end
-    })
-
+    MiscSection1:Button({ Name = "Be Friends with Cat", Callback = function() ReplicatedStorage.RemoteEvents.Cattery:FireServer() end })
     MiscSection1:Button({
         Name = "Open Safe",
         Callback = function()
@@ -456,7 +353,6 @@ if not hasTruck then
             ReplicatedStorage.RemoteEvents.Safe:FireServer(safeCode)
         end
     })
-
     MiscSection1:Button({
         Name = "Unlock Door",
         Callback = function()
@@ -465,7 +361,6 @@ if not hasTruck then
             ReplicatedStorage.RemoteEvents.Door:FireServer("Basement", true)
         end
     })
-
     MiscSection1:Button({
         Name = "Kill Enemies",
         Callback = function()
@@ -479,7 +374,6 @@ if not hasTruck then
             end
         end
     })
-
     MiscSection1:Divider()
 end
 
@@ -500,8 +394,7 @@ MiscSection1:Toggle({
 MiscSection1:Button({
     Name = "Rejoin Server",
     Callback = function()
-        local TeleportService = game:GetService("TeleportService")
-        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+        game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
     end
 })
 
