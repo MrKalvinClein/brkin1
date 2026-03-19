@@ -26,7 +26,7 @@ local MacLib = loadstring(game:HttpGet("https://github.com/biggaboy212/Maclib/re
 local Window = MacLib:Window({
     Title = "Dexter Scripts",
     Subtitle = "by nipcd",
-    Size = isMobile and UDim2.fromOffset(340, 500) or UDim2.fromOffset(868, 650),
+    Size = isMobile and UDim2.fromOffset(780, 580) or UDim2.fromOffset(868, 650),
     DragStyle = isMobile and 2 or 1,
     ShowUserInfo = true,
     Keybind = Enum.KeyCode.K,
@@ -78,9 +78,7 @@ end)
 circle.InputChanged:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = Vector2.new(input.Position.X - touchStartPos.X, input.Position.Y - touchStartPos.Y)
-        if delta.Magnitude > 10 then
-            dragging = true
-        end
+        if delta.Magnitude > 10 then dragging = true end
         if dragging then
             circle.Position = UDim2.fromOffset(input.Position.X + dragOffset.X, input.Position.Y + dragOffset.Y)
         end
