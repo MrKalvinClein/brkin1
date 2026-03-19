@@ -45,11 +45,11 @@ screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 local circle = Instance.new("TextButton")
 circle.Size = UDim2.fromOffset(55, 55)
 circle.Position = UDim2.new(0, 15, 0.85, 0)
-circle.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-circle.Text = "✦"
+circle.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
+circle.Text = "⭐"
 circle.TextColor3 = Color3.new(1, 1, 1)
-circle.TextSize = 22
-circle.Font = Enum.Font.Legacy
+circle.TextSize = 24
+circle.Font = Enum.Font.GothamBold
 circle.BorderSizePixel = 0
 circle.ZIndex = 999
 circle.Parent = screenGui
@@ -58,8 +58,16 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(1, 0)
 corner.Parent = circle
 
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0)),
+})
+gradient.Rotation = 90
+gradient.Parent = circle
+
 local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(100, 100, 100)
+stroke.Color = Color3.fromRGB(255, 180, 0)
 stroke.Thickness = 2
 stroke.Parent = circle
 
