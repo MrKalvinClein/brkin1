@@ -46,7 +46,7 @@ local circle = Instance.new("TextButton")
 circle.Size = UDim2.fromOffset(55, 55)
 circle.Position = UDim2.new(0, 15, 0.85, 0)
 circle.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-circle.Text = "☰"
+circle.Text = "✦"
 circle.TextColor3 = Color3.new(1, 1, 1)
 circle.TextSize = 22
 circle.Font = Enum.Font.GothamBold
@@ -414,21 +414,5 @@ MiscSection1:Button({
     end
 })
 
-MiscSection2:Header({ Text = "Settings" })
-
-MiscSection2:Keybind({
-    Name = "Toggle UI",
-    Default = Enum.KeyCode.K,
-    Blacklist = {
-        Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D,
-        Enum.KeyCode.Space, Enum.KeyCode.LeftShift, Enum.KeyCode.Escape,
-    },
-    onBinded = function(bind)
-        Window:SetKeybind(bind)
-        Window:Notify({
-            Title = "Keybind Updated",
-            Description = "Menu keybind changed to: " .. tostring(bind.Name),
-            Lifetime = 2,
-        })
-    end,
-})
+MiscSection2:Header({ Text = "Info" })
+MiscSection2:Label({ Text = "Keybind UI: K" })
