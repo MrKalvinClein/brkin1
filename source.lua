@@ -26,12 +26,70 @@ local MacLib = loadstring(game:HttpGet("https://github.com/biggaboy212/Maclib/re
 local Window = MacLib:Window({
     Title = "Dexter Scripts",
     Subtitle = "by nipcd",
-    Size = UDim2.fromOffset(868, 650),
+    Size = isMobile and UDim2.fromOffset(380, 340) or UDim2.fromOffset(868, 650),
     DragStyle = isMobile and 2 or 1,
     ShowUserInfo = true,
     Keybind = Enum.KeyCode.K,
     AcrylicBlur = true,
 })
+
+local isOpen = true
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MacLibToggle"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local circle = Instance.new("TextButton")
+circle.Size = UDim2.fromOffset(50, 50)
+circle.Position = UDim2.new(0, 20, 0.5, -25)
+circle.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+circle.Text = "☰"
+circle.TextColor3 = Color3.new(1, 1, 1)
+circle.TextSize = 20
+circle.Font = Enum.Font.GothamBold
+circle.BorderSizePixel = 0
+circle.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(1, 0)
+corner.Parent = circle
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(80, 80, 80)
+stroke.Thickness = 2
+stroke.Parent = circle
+
+local dragging = false
+local dragOffset = Vector2.new()
+
+circle.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+        local pos = Vector2.new(input.Position.X, input.Position.Y)
+        dragOffset = Vector2.new(circle.AbsolutePosition.X - pos.X, circle.AbsolutePosition.Y - pos.Y)
+        task.delay(0.15, function()
+            if input.UserInputState ~= Enum.UserInputState.End then
+                dragging = true
+            end
+        end)
+    end
+end)
+
+circle.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
+        local pos = Vector2.new(input.Position.X, input.Position.Y)
+        circle.Position = UDim2.fromOffset(pos.X + dragOffset.X, pos.Y + dragOffset.Y)
+    end
+end)
+
+circle.InputEnded:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1) and not dragging then
+        isOpen = not isOpen
+        Window:SetState(isOpen)
+    end
+    dragging = false
+end)
 
 local hasTruck = Workspace:FindFirstChild("Truck1") or Workspace:FindFirstChild("Truck2")
 
