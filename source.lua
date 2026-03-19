@@ -33,6 +33,26 @@ local Window = MacLib:Window({
     AcrylicBlur = true,
 })
 
+task.defer(function()
+    task.wait(1)
+    local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+    for _, gui in pairs(playerGui:GetChildren()) do
+        if gui:IsA("ScreenGui") and gui.Name ~= "MacLibToggle" then
+            for _, frame in pairs(gui:GetDescendants()) do
+                if frame:IsA("Frame") and frame.AbsoluteSize.X > 300 and frame.AbsoluteSize.Y > 300 and not frame:FindFirstChildOfClass("UIGradient") then
+                    local g = Instance.new("UIGradient")
+                    g.Color = ColorSequence.new({
+                        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 0)),
+                        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0)),
+                    })
+                    g.Rotation = 90
+                    g.Parent = frame
+                end
+            end
+        end
+    end
+end)
+
 local isOpen = true
 
 local screenGui = Instance.new("ScreenGui")
@@ -58,13 +78,13 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(1, 0)
 corner.Parent = circle
 
-local gradient = Instance.new("UIGradient")
-gradient.Color = ColorSequence.new({
+local circleGradient = Instance.new("UIGradient")
+circleGradient.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 0)),
     ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0)),
 })
-gradient.Rotation = 90
-gradient.Parent = circle
+circleGradient.Rotation = 90
+circleGradient.Parent = circle
 
 local stroke = Instance.new("UIStroke")
 stroke.Color = Color3.fromRGB(255, 180, 0)
@@ -422,5 +442,21 @@ MiscSection1:Button({
     end
 })
 
+MiscSection2:Header({ Text = "Button Color" })
+
+MiscSection2:Colorpicker({
+    Name = "Button Color",
+    Default = Color3.fromRGB(255, 200, 0),
+    Callback = function(color)
+        circle.BackgroundColor3 = color
+        circleGradient.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, color),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0)),
+        })
+        stroke.Color = color
+    end,
+})
+
+MiscSection2:Divider()
 MiscSection2:Header({ Text = "Info" })
 MiscSection2:Label({ Text = "Keybind UI: K" })
